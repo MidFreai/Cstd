@@ -1,5 +1,11 @@
+// Dinamic C String
+// Make Strings without memory alloc
+// using the String type or native c strings with the newcstr()
+
 #ifndef DCSTR_H
 #define DCSTR_H
+
+// Macros for swap std libs
 
 #ifndef DCSTR_REALLOC
 #include <stdlib.h>
@@ -19,26 +25,33 @@
 
 #define STRING_INIT_CAP 16
 
-#ifndef STRIP_STRING_STRUCT
-
 typedef struct{
   char* data;
   size_t count;
   size_t capacity;
 }String;
 
-#endif // STRIP_STRING_STRUCT
-
-DCSTRDEF bool dcstr_reserve(String* s, size_t expected_capacity);
-
-DCSTRDEF bool dcstr_append(String* s, char* t);
-DCSTRDEF bool dcstr_append_null(String* s);
-DCSTRDEF bool dcstr_overlay(String* s, char* t);
-
-DCSTRDEF String newstring(char* t);
+// Take an string literal and return a string literal
 DCSTRDEF char* newcstr(char* t);
 
+// Check the capacity of the String and allocate memory // Returns false if cannot allocate
+DCSTRDEF bool dcstr_reserve(String* s, size_t expected_capacity);
+
+// Call reserve and add the string loteral
+DCSTRDEF bool dcstr_append(String* s, char* t);
+
+// Append a null caracter in the end
+DCSTRDEF bool dcstr_append_null(String* s);
+
+// Overwrite the content of the String
+DCSTRDEF bool dcstr_overwrite(String* s, char* t);
+// Call Overwrite on a new String and return a pointer to this new String
+DCSTRDEF String newstring(char* t);
+
+// TODO: is not working
 DCSTRDEF char dcstr_pop(String* s);
+
+// Free the data of the String
 DCSTRDEF void dcstr_free(String* s);
 
 #endif // !DCSTR_H
@@ -73,7 +86,7 @@ DCSTRDEF bool dcstr_append_null(String* s){
   return dcstr_append(s, "");
 }
 
-DCSTRDEF bool dcstr_overlay(String* s, char* t){
+DCSTRDEF bool dcstr_overwrite(String* s, char* t){
   size_t new_count = strlen(t);
   if(!dcstr_reserve(s, new_count)) return false;
   memcpy(s->data, t, new_count*sizeof(s->data));
@@ -83,13 +96,13 @@ DCSTRDEF bool dcstr_overlay(String* s, char* t){
 
 DCSTRDEF String newstring(char* t){
   String holder = {0};
-  dcstr_overlay(&holder, t);
+  dcstr_overwrite(&holder, t);
   return holder;
 }
 
 DCSTRDEF char* newcstr(char* t){
   String holder = {0};
-  dcstr_overlay(&holder, t);
+  dcstr_overwrite(&holder, t);
   return holder.data;
 }
 
