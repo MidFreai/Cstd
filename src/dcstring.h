@@ -45,6 +45,7 @@ DCSTRDEF bool dcstr_append_null(String* s);
 
 // Overwrite the content of the String
 DCSTRDEF bool dcstr_overwrite(String* s, char* t);
+
 // Call Overwrite on a new String and return a pointer to this new String
 DCSTRDEF String newstring(char* t);
 
@@ -116,6 +117,7 @@ DCSTRDEF char dcstr_pop(String* s){
 
 DCSTRDEF void dcstr_free(String* s){
   DCSTR_FREE(s->data);
+  s->count = 0;
 }
 
 #endif // IMPL
