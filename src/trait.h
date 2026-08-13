@@ -1,4 +1,8 @@
-#include "dasb.h"
+#ifndef TRAIT_H
+#define TRAIT_H
+
+#include <stddef.h>
+#include <stdlib.h>
 
 typedef struct{
   const void* id;
@@ -16,9 +20,19 @@ typedef struct{
   Trait_da traits;
 }Trait_Object;
 
-void* trait_find(Trait_da* da, const void* id){
-  //Trait_Object* obj = self;
-  //Trait_da* da = obj->traits;
+static const size_t Trait_da_capacity = 1;
+
+bool trait_da_reserve(Trait_da* da, size_t expected_capacity);
+bool trait_append(Trait_da* da, Trait_entry te);
+
+void* trait_find(void* self, const void* id);
+void* trait_da_find(Trait_da* da, const char* id);
+
+#endif //TRAIT_H
+
+void* trait_find(void* self, const void* id){
+  Trait_da* da = self;
+  if(!da) { return NULL; };
 
   for(size_t i = 0; i < da->count; i++){
     if(da->data[i].id == id){
@@ -29,7 +43,37 @@ void* trait_find(Trait_da* da, const void* id){
   return NULL;
 }
 
-void* trait___find(void* self, const char* id){
-  Trait_Object* obj = self;
-  //return trait_da_find(&obj->traits, id);
+void* trait_da_find(Trait_da* da, const char* id){
+  for(size_t i = 0; i < da->count; i++){
+    if(da->data[i].id == id){
+      return da->data[i].trait;
+    }
+  }
+
+  return NULL;
+}
+
+bool trait_da_reserve(Trait_da* da, size_t expected_capacity){
+  if(expected_capacity > da->capacity){
+    if(da->capacity == 0){
+      da->capacity = Trait_da_capacity;
+    }
+
+    while (expected_capacity > da->capacity) {
+      da->capacity *= 2;
+    }
+
+    da->data = realloc(da->data, da->capacity * sizeof(da->data));
+
+    if (da->data == NULL) {
+      return false;
+    }
+  }
+  return true;
+}
+
+bool trait_append(Trait_da* da, Trait_entry entry){
+  if(!trait_da_reserve(da, da->count + 1)) return false;
+  da->data[da->count++] = entry;
+  return true;
 }

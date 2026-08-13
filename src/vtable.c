@@ -1,42 +1,9 @@
-#include "dasb.h"
+#include <trait.h>
 
 #include <stdio.h>
 
 #define TRAIT typedef struct
-
-typedef struct{
-  const char* name;
-  void* trait;
-}Trait_entry;
-
-typedef struct{
-  Trait_entry* data;
-  size_t count;
-  size_t capacity;
-}Trait_da;
-
-// Base model for casting void*
-typedef struct{
-  Trait_da traits;
-}Trait_Object;
-
-void* trait_find(Trait_da* da, const char* id){
-  //Trait_Object* obj = self;
-  //Trait_da* da = obj->traits;
-
-  for(size_t i = 0; i < da->count; i++){
-    if(!strcmp(da->data[i].name, id)){
-      return da->data[i].trait;
-    }
-  }
-
-  return NULL;
-}
-
-void* trait___find(void* self, const char* id){
-  Trait_Object* obj = self;
-  //return trait_da_find(&obj->traits, id);
-}
+#define TRAIT_ID static const char
 
 TRAIT{
   void(*show)(void* self);
@@ -45,7 +12,7 @@ static const char Show_id;
 
 void show(void* self){
   Trait_Object* obj = self;
-  Show* trait = trait_find(&obj->traits, "Show");
+  Show* trait = trait_find(self, &Show_id);
 
   if(!trait) return;
 
@@ -64,12 +31,10 @@ void typeshow(void* self){
 
 int main(void){
   Type t = {0};
-  da_append(&t.traits, ((Trait_entry){ "Show", &(Show){ typeshow } }));
+  trait_append(&t.traits, (Trait_entry){ &Show_id, &(Show){ typeshow } });
 
   t.cap = 69;
   show(&t);
 
-  //Show* s = trait_find(&t, "Show");
-  //s->show(&t);
   return 0;
 }
