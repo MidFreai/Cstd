@@ -1,35 +1,45 @@
 #ifndef TRAIT_H
 #define TRAIT_H
 
+#include <stdbool.h>
+
 // for size_t
 #include <stddef.h>
 
 //for realloc
 #include <stdlib.h>
 
+// The entry is the way to store traits with the ids
 typedef struct{
   const void* id;
   void* trait;
 }Trait_entry;
 
+// The dynamic array for types store traits
 typedef struct{
   Trait_entry* data;
   size_t count;
   size_t capacity;
 }Trait_da;
 
-// Base model for casting void*
-typedef struct{
-  Trait_da traits;
-}Trait_Object;
+// Decl
 
+// Initial capacity of the DAs
 static const size_t Trait_da_capacity = 1;
 
+// To ensure and reserve memory for the array
 bool trait_da_reserve(Trait_da* da, size_t expected_capacity);
+
+// Append a new item in the end // This func is used while you dont want/need to cast to void*
 bool trait_da_append(Trait_da* da, Trait_entry entry);
+
+// Append a new item in the end // Cast out the Trait_da if is the first in the struct
 bool trait_append(void* self, Trait_entry entry);
 
+// Using for find if the type impl the trait // Cast out the Trait_da if is the first in the struct
 void* trait_find(void* self, const void* id);
+
+// Using for find if the type impl the trait // This func is used while you dont want/need to cast to void*
 void* trait_da_find(Trait_da* da, const char* id);
 
 #endif //TRAIT_H
