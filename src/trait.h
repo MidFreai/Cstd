@@ -1,7 +1,10 @@
 #ifndef TRAIT_H
 #define TRAIT_H
 
+// for size_t
 #include <stddef.h>
+
+//for realloc
 #include <stdlib.h>
 
 typedef struct{
@@ -23,12 +26,15 @@ typedef struct{
 static const size_t Trait_da_capacity = 1;
 
 bool trait_da_reserve(Trait_da* da, size_t expected_capacity);
-bool trait_append(Trait_da* da, Trait_entry te);
+bool trait_da_append(Trait_da* da, Trait_entry entry);
+bool trait_append(void* self, Trait_entry entry);
 
 void* trait_find(void* self, const void* id);
 void* trait_da_find(Trait_da* da, const char* id);
 
 #endif //TRAIT_H
+
+#ifdef TRAIT_IMPL
 
 void* trait_find(void* self, const void* id){
   Trait_da* da = self;
@@ -63,7 +69,7 @@ bool trait_da_reserve(Trait_da* da, size_t expected_capacity){
       da->capacity *= 2;
     }
 
-    da->data = realloc(da->data, da->capacity * sizeof(da->data));
+    da->data = realloc(da->data, da->capacity * sizeof(*da->data));
 
     if (da->data == NULL) {
       return false;
@@ -72,8 +78,18 @@ bool trait_da_reserve(Trait_da* da, size_t expected_capacity){
   return true;
 }
 
-bool trait_append(Trait_da* da, Trait_entry entry){
+bool trait_da_append(Trait_da* da, Trait_entry entry){
   if(!trait_da_reserve(da, da->count + 1)) return false;
   da->data[da->count++] = entry;
   return true;
 }
+
+bool trait_append(void* self, Trait_entry entry){
+  Trait_da* da = self;
+  if(!da) return false;
+  if(!trait_da_reserve(da, da->count + 1)) return false;
+  da->data[da->count++] = entry;
+  return true;
+}
+
+#endif // TRAIT_IMPL
